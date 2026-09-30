@@ -1,0 +1,18 @@
+#Data dump prevention
+
+data/processed/*.csv
+data/raw/*.csv
+data/processed/models.pkl
+
+reports/*
+
+.agents
+.venv
+venv
+__pycache__/
+*.pyc
+
+.DS_Store
+.vscode/
+.idea/
+
