@@ -4,8 +4,6 @@ data/processed/*.csv
 data/raw/*.csv
 data/processed/models.pkl
 
-reports/*
-
 .agents
 .venv
 venv
