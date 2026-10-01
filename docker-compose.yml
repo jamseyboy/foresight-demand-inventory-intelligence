@@ -1,0 +1,43 @@
+# Run both services locally with one command:  docker compose up --build
+# Dashboard: http://localhost:8501   API: http://localhost:8000  (docs at /docs)
+#
+
+services:
+  dashboard:
+    build: .                 # uses ./Dockerfile
+    image: foresight:local   # shared tag — "api" below reuses this image, built only once
+    ports:
+      - "8501:8501"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATA_PATH=/app/data
+    # Mount the processed data from the host so you can re-run
+    # `python -m src.pipeline` etc. on your machine and see the dashboard
+    # update without rebuilding the image.
+    volumes:
+      - ./data/processed:/app/data/processed:ro
+    command: streamlit run app/Home_Page.py --server.port 8501 --server.address 0.0.0.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  api:
+    build: .
+    image: foresight:local      # same tag as "dashboard" above, so Compose builds the image once and
+    ports:                      # reuses it here instead of building it twice — the two services are
+                                 # otherwise independent and don't talk to each other
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./data/processed:/app/data/processed:ro
+    command: uvicorn services.main:app --host 0.0.0.0 --port 8000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s

@@ -27,6 +27,10 @@ backtest — see `reports/model_backtest.md` for the full breakdown by horizon, 
 
 ## Quickstart
 
+**Note:** Before starting or running the project make sure the raw `*.csv` files follow proper column name and structure.
+go here -> [Raw Data Model](data/DATA_STRUCTURE.md)
+
+
 ```bash
 pip install -r requirements.txt
 
@@ -41,9 +45,9 @@ python -m src.eda
 python -m src.forecast
 ```
 
-***running `python -m src.forecast` may throw error due to missing `'libomp.dylib'` library, this need system 
-level installation of the libomp library.
-On macos you can install the library by running `brew install libomp`***
+*running `python -m src.forecast` may throw error due to missing `'libomp.dylib'` library, this need system 
+level installation of the libomp library.*
+*In **macos** you can install the library by running `'brew install libomp'`.*
 
 ```bash
 # 4. Score stockout/overstock risk for every SKU
@@ -58,6 +62,8 @@ uvicorn service.main:app --reload --port 8000
 
 Re-running steps 1–4 end-to-end reproduces every number in this README from the raw CSVs in
 `data/raw/`.
+
+
 
 ## Repository structure
 
@@ -107,6 +113,38 @@ Stockout risk compares forecast demand over the lead-time window against on-hand
 Overstock risk compares on-hand stock against forecast demand over the full 8-week horizon. Each SKU
 lands in one of four quadrants — Reorder Now, Markdown / Clear, Watch / Volatile, Healthy — with a
 rupee value attached so the team can prioritize.
+
+
+## Run locally with Docker Compose
+
+```bash
+docker compose up --build
+```
+This builds one image and starts both services from it: the dashboard at
+http://localhost:8501 and the API at http://localhost:8000 (interactive docs at
+http://localhost:8000/docs). `data/processed/` is mounted read-only from your machine, so
+re-running `python -m src.pipeline && python -m src.forecast && python -m src.risk` on the host and
+refreshing the dashboard picks up new numbers without rebuilding the image.
+
+```bash
+docker compose down          # stop and remove both containers
+docker compose logs -f api   # tail one service's logs
+```
+
+## Deploy to Render:
+1. Push this repo to GitHub, with `data/processed/*.csv` committed (the deployed containers read
+   these directly; they do not re-run the pipeline). `data/raw/*.csv` and `models.pkl` are
+   intentionally excluded — see `.gitignore`.
+2. In the Render dashboard: **New → Blueprint**, point it at this repo. Render reads `render.yaml`
+   and creates both `foresight-dashboard` and `foresight-api` automatically.
+3. Each gets a URL like `https://foresight-dashboard.onrender.com` and
+   `https://foresight-api.onrender.com`.
+
+**Free-tier limitations to know about:** both services spin down after 15 minutes of inactivity and
+take 30-60 seconds to wake on the next request — fine for a demo/portfolio link, not for something
+that needs to always respond instantly. Streamlit's dashboard relies on a WebSocket connection,
+which Render's free tier does support (confirmed in their docs), so the dashboard itself isn't
+broken by the free tier — only slowed by the cold start.
 
 ## Scoring API
 

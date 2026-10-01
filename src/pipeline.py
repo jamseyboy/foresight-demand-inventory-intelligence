@@ -241,6 +241,8 @@ def run() -> None:
 
     daily.to_csv(PROCESSED_DIR / "analysis_ready_daily.csv", index=False)
     weekly.to_csv(PROCESSED_DIR / "analysis_ready_weekly.csv", index=False)
+    cleaned["inventory"].to_csv(PROCESSED_DIR / "inventory_clean.csv", index=False)  # monthly snapshots (dashboard trend)
+    cleaned["sku"].to_csv(PROCESSED_DIR / "sku_master_clean.csv", index=False)
 
     print(f"Daily rows:  {len(daily):,}  -> {PROCESSED_DIR / 'analysis_ready_daily.csv'}")
     print(f"Weekly rows: {len(weekly):,} -> {PROCESSED_DIR / 'analysis_ready_weekly.csv'}")

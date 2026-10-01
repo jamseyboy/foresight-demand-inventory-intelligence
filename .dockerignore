@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.pyc
+.git/
+.ipynb_checkpoints/
+notebooks/
+reports/figures/
+.DS_Store
+.vscode/
+.idea/
+
+# Raw client data: the brief says don't distribute large raw dumps (see .gitignore).
+# The deployed app only needs data/processed/*.csv — it never reads data/raw/ at runtime.
+data/raw/*.csv
+
+# Large trained-model pickle: not read by the dashboard or the API at request time.
+data/processed/models.pkl

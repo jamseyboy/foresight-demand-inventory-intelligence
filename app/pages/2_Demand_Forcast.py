@@ -11,6 +11,7 @@ from utils import (setup, header, get_data, category_filter, skus_in, num, chart
 
 setup("Demand Forecast", "📈")
 data = get_data()
+print(data.keys())
 header("Demand Forecast", "📈", "How many units of each product we expect to sell over the next 8 weeks.")
 
 cat = category_filter(data)

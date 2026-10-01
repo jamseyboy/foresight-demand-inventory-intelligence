@@ -4,9 +4,22 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import streamlit as st
+import os
 
-ROOT = Path(__file__).resolve().parents[1]
-PROC = ROOT / "data" / "processed"
+
+docker_data_path = os.getenv("DATA_PATH")
+print(f"Using data path: {docker_data_path}")
+
+if docker_data_path:
+    PROC = Path(docker_data_path + "/processed")
+    print(f"Using data from utils path: {PROC}")
+    for item in PROC.iterdir():
+        print(item)
+        if item.is_dir():
+            print(item.name)
+else:
+    ROOT = Path(__file__).resolve().parents[1]
+    PROC = ROOT / "data" / "processed"
 
 # ---- plain-language labels for the four risk groups (Section 08 of the brief) ----
 COLORS = {"Reorder Now": "#D64545", "Markdown / Clear": "#3B82C4",
